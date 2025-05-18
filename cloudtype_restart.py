@@ -30,7 +30,13 @@ try:
 
     wait = WebDriverWait(driver, 20)
     print(f"{datetime.now()} - 로그인 버튼 찾는 중...")
-    element = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="page"]/div/div[1]/div/div[2]/div/div[2]/div[1]/a[1]')))
+    # element = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'GitHub 계정으로 로그인')]")))
+    # element = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Continue with GitHub')]")))
+    # element = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="page"]/div/div[1]/div/div[2]/div/div[2]/div[1]/a[1]')))
+    element = wait.until(EC.element_to_be_clickable((
+        By.XPATH,
+        "//*[contains(text(), 'Continue with GitHub') or contains(text(), 'GitHub 계정으로 로그인')]"
+    )))
     print(f"{datetime.now()} - 로그인 버튼 텍스트: '{element.text}'")
     element.click()
 
