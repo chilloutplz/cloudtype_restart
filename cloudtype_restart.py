@@ -31,6 +31,7 @@ try:
     wait = WebDriverWait(driver, 20)
     print(f"{datetime.now()} - 로그인 버튼 찾는 중...")
     element = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="page"]/div/div[1]/div/div[2]/div/div[2]/div[1]/a[1]')))
+    print(f"{datetime.now()} - 로그인 버튼 텍스트: '{element.text}'")
     element.click()
 
     print(f"{datetime.now()} - GitHub 로그인 창으로 전환 중...")
