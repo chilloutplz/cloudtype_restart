@@ -55,6 +55,7 @@ try:
     # elements 찾기 여부
     if not elements:
         print(f"{datetime.now()} - 'bi-play-fill' 요소를 찾지 못했습니다.")
+        print(driver.current_url)
     else:
         print(f"{datetime.now()} - 총 {len(elements)}개의 'bi-play-fill' 요소를 찾았습니다.")
 
