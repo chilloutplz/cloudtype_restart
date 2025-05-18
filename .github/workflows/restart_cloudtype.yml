@@ -1,46 +1,53 @@
-# 파일 위치: .github/workflows/restart_cloudtype.yml
-
-name: Restart Cloudtype Service
+name: Auto Restart Cloudtype Service
 
 on:
-  workflow_dispatch:  # 수동 실행
   schedule:
-    - cron: '1 20 * * *'    # 05:01 KST (20:01 UTC)
-    - cron: '3 20 * * *'    # 05:03
-    - cron: '5 20 * * *'    # 05:05
+    # 한국 시간 05:01~05:11 → UTC 기준 20:01~20:11 (전날 오후 8시 1분~11분)
+    - cron: '1,3,5 20 * * *'
+  workflow_dispatch:
 
 jobs:
   restart:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install selenium python-dotenv
+      - name: Install Chrome & ChromeDriver
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip xvfb
+          
+          # Install Chrome
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt install -y ./google-chrome-stable_current_amd64.deb
+          
+          # Get Chrome version
+          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
+          
+          # Download matching ChromeDriver version
+          DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION)
+          wget -O chromedriver.zip https://chromedriver.storage.googleapis.com/$DRIVER_VERSION/chromedriver_linux64.zip
+          unzip chromedriver.zip
+          sudo mv chromedriver /usr/bin/chromedriver
+          sudo chmod +x /usr/bin/chromedriver
 
-    - name: Install ChromeDriver
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y chromium-browser
-        sudo apt-get install -y chromium-chromedriver
-        # ln 명령 생략 또는 조건부로 실행
-        if [ ! -f /usr/bin/chromedriver ]; then
-          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
-        fi
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install selenium python-dotenv
 
-    - name: Set environment variables
-      run: |
-        echo "CLOUDTYPE_ID=${{ secrets.CLOUDTYPE_ID }}" >> $GITHUB_ENV
-        echo "CLOUDTYPE_PW=${{ secrets.CLOUDTYPE_PW }}" >> $GITHUB_ENV
+      - name: Create .env file
+        run: |
+          echo "CLOUDTYPE_ID=${{ secrets.CLOUDTYPE_ID }}" >> .env
+          echo "CLOUDTYPE_PW=${{ secrets.CLOUDTYPE_PW }}" >> .env
 
-    - name: Run Cloudtype Restart Script
-      run: python cloudtype_restart.py
+      - name: Run Selenium Script
+        run: |
+          xvfb-run python your_script.py
