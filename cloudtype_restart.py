@@ -1,6 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time, os
 from dotenv import load_dotenv
 from datetime import datetime
@@ -21,9 +23,10 @@ try:
     driver.get("https://app.cloudtype.io/@unclebob/unclebob:main")
     time.sleep(3)
 
-    element = driver.find_element(By.XPATH, "//*[contains(text(), 'GitHub 계정으로 로그인')]")
+    wait = WebDriverWait(driver, 20)
+    element = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="page"]/div/div[1]/div/div[2]/div/div[2]/div[1]/a[1]')))
+    # element = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'GitHub 계정으로 로그인')]")))
     element.click()
-    time.sleep(3)
 
     driver.switch_to.window(driver.window_handles[-1])
     driver.find_element(By.ID, "login_field").send_keys(USER_ID)
