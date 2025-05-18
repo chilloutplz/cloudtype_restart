@@ -32,7 +32,10 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y chromium-browser
         sudo apt-get install -y chromium-chromedriver
-        sudo ln -sf /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
+        # ln 명령 생략 또는 조건부로 실행
+        if [ ! -f /usr/bin/chromedriver ]; then
+          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
+        fi
 
     - name: Set environment variables
       run: |
