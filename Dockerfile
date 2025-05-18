@@ -22,7 +22,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 스크립트 복사
-COPY your_script.py .
+COPY cloudtype_restart.py .
 
 # 실행
-ENTRYPOINT ["python", "your_script.py"]
+ENTRYPOINT ["python", "cloudtype_restart.py"]
