@@ -1,0 +1,43 @@
+# 파일 위치: .github/workflows/restart_cloudtype.yml
+
+name: Restart Cloudtype Service
+
+on:
+  workflow_dispatch:  # 수동 실행
+  schedule:
+    - cron: '1 20 * * *'    # 05:01 KST (20:01 UTC)
+    - cron: '3 20 * * *'    # 05:03
+    - cron: '5 20 * * *'    # 05:05
+
+jobs:
+  restart:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install selenium python-dotenv
+
+    - name: Install ChromeDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chromium-browser
+        sudo apt-get install -y chromium-chromedriver
+        sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
+
+    - name: Set environment variables
+      run: |
+        echo "CLOUDTYPE_ID=${{ secrets.CLOUDTYPE_ID }}" >> $GITHUB_ENV
+        echo "CLOUDTYPE_PW=${{ secrets.CLOUDTYPE_PW }}" >> $GITHUB_ENV
+
+    - name: Run Cloudtype Restart Script
+      run: python cloudtype_restart.py
