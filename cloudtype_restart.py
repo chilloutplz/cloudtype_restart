@@ -51,6 +51,12 @@ try:
     print(f"{datetime.now()} - Cloudtype 서비스 상태 확인 중...")
     driver.switch_to.window(driver.window_handles[-1])
     elements = driver.find_elements(By.CLASS_NAME, "bi-play-fill")
+    
+    # elements 찾기 여부
+    if not elements:
+        print(f"{datetime.now()} - 'bi-play-fill' 요소를 찾지 못했습니다.")
+    else:
+        print(f"{datetime.now()} - 총 {len(elements)}개의 'bi-play-fill' 요소를 찾았습니다.")
 
     found = False
     for element in elements:
