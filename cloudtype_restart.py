@@ -31,7 +31,7 @@ def get_github_verification_code():
     mail.login(EMAIL, EMAIL_PW)
     mail.select("inbox")
 
-    for _ in range(30):  # 최대 30초 대기
+    for _ in range(30):
         result, data = mail.search(None, '(FROM "noreply@github.com")')
         ids = data[0].split()
         if ids:
@@ -43,23 +43,31 @@ def get_github_verification_code():
                 continue
 
             try:
-                msg = email.message_from_bytes(msg_data[0][1])
+                raw = msg_data[0][1]
+                if not raw:
+                    print(f"{datetime.now()} - 메시지 바디가 None입니다.")
+                    time.sleep(1)
+                    continue
+
+                msg = email.message_from_bytes(raw)
 
                 if msg.is_multipart():
                     for part in msg.walk():
                         if part.get_content_type() == "text/plain":
-                            body = part.get_payload(decode=True)
-                            if body:
-                                body = body.decode()
+                            payload = part.get_payload(decode=True)
+                            if payload:
+                                body = payload.decode()
                                 code = re.search(r'\b\d{6}\b', body)
                                 if code:
+                                    print(f"{datetime.now()} - 인증 코드 감지됨: {code.group()}")
                                     return code.group()
                 else:
-                    body = msg.get_payload(decode=True)
-                    if body:
-                        body = body.decode()
+                    payload = msg.get_payload(decode=True)
+                    if payload:
+                        body = payload.decode()
                         code = re.search(r'\b\d{6}\b', body)
                         if code:
+                            print(f"{datetime.now()} - 인증 코드 감지됨: {code.group()}")
                             return code.group()
             except Exception as e:
                 print(f"{datetime.now()} - 이메일 파싱 중 오류: {e}")
@@ -70,7 +78,6 @@ def get_github_verification_code():
 
     print(f"{datetime.now()} - 30초 내 인증 코드 수신 실패")
     return None
-
 
 try:
     print(f"{datetime.now()} - Cloudtype 서비스 페이지 접속 중...")
@@ -94,8 +101,13 @@ try:
     driver.find_element(By.NAME, "commit").click()
     time.sleep(3)
 
-    # 인증 코드 페이지 확인
-    if "sessions/verified-device" in driver.current_url:
+    current_url = driver.current_url
+    if "github.com/session" in current_url or "github.com/login" in current_url:
+        print(f"{datetime.now()} - ❌ 로그인 실패 또는 인증 미완료. 현재 URL: {current_url}")
+        driver.quit()
+        exit()
+
+    if "sessions/verified-device" in current_url:
         print(f"{datetime.now()} - 📧 GitHub 기기 인증 필요: 이메일에서 코드 입력 중...")
         code = get_github_verification_code()
         if code:
