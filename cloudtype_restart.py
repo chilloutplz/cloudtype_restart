@@ -37,22 +37,40 @@ def get_github_verification_code():
         if ids:
             latest_id = ids[-1]
             result, msg_data = mail.fetch(latest_id, "(RFC822)")
-            msg = email.message_from_bytes(msg_data[0][1])
+            if not msg_data or not msg_data[0]:
+                print(f"{datetime.now()} - 메일 본문 없음 (msg_data is None)")
+                time.sleep(1)
+                continue
 
-            if msg.is_multipart():
-                for part in msg.walk():
-                    if part.get_content_type() == "text/plain":
-                        body = part.get_payload(decode=True).decode()
+            try:
+                msg = email.message_from_bytes(msg_data[0][1])
+
+                if msg.is_multipart():
+                    for part in msg.walk():
+                        if part.get_content_type() == "text/plain":
+                            body = part.get_payload(decode=True)
+                            if body:
+                                body = body.decode()
+                                code = re.search(r'\b\d{6}\b', body)
+                                if code:
+                                    return code.group()
+                else:
+                    body = msg.get_payload(decode=True)
+                    if body:
+                        body = body.decode()
                         code = re.search(r'\b\d{6}\b', body)
                         if code:
                             return code.group()
-            else:
-                body = msg.get_payload(decode=True).decode()
-                code = re.search(r'\b\d{6}\b', body)
-                if code:
-                    return code.group()
+            except Exception as e:
+                print(f"{datetime.now()} - 이메일 파싱 중 오류: {e}")
+
+        else:
+            print(f"{datetime.now()} - 아직 인증 메일이 도착하지 않았습니다.")
         time.sleep(1)
+
+    print(f"{datetime.now()} - 30초 내 인증 코드 수신 실패")
     return None
+
 
 try:
     print(f"{datetime.now()} - Cloudtype 서비스 페이지 접속 중...")
