@@ -27,6 +27,6 @@ jobs:
           docker run \
             -e CLOUDTYPE_ID="${{ secrets.CLOUDTYPE_ID }}" \
             -e CLOUDTYPE_PW="${{ secrets.CLOUDTYPE_PW }}" \
-            -e EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }} \
-            -e EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }} \
+            -e EMAIL_ADDRESS="${{ secrets.EMAIL_ADDRESS }}" \
+            -e EMAIL_PASSWORD="${{ secrets.EMAIL_PASSWORD }}" \
             cloudtype-monitor
