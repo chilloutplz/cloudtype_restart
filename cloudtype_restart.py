@@ -96,9 +96,34 @@ try:
     print(f"{datetime.now()} - GitHub 로그인 창으로 전환 중...")
     driver.switch_to.window(driver.window_handles[-1])
     print(f"{datetime.now()} - GitHub 로그인 시도 중...")
-    driver.find_element(By.ID, "login_field").send_keys(USER_ID)
-    driver.find_element(By.ID, "password").send_keys(USER_PW)
-    driver.find_element(By.NAME, "commit").click()
+
+    try:
+        login_field = driver.find_element(By.ID, "login_field")
+        print(f"{datetime.now()} - ✅ login_field 요소 찾음")
+        login_field.send_keys(USER_ID)
+    except Exception as e:
+        print(f"{datetime.now()} - ❌ login_field 요소를 찾지 못함: {e}")
+        driver.quit()
+        exit()
+
+    try:
+        password_field = driver.find_element(By.ID, "password")
+        print(f"{datetime.now()} - ✅ password 요소 찾음")
+        password_field.send_keys(USER_PW)
+    except Exception as e:
+        print(f"{datetime.now()} - ❌ password 요소를 찾지 못함: {e}")
+        driver.quit()
+        exit()
+
+    try:
+        commit_button = driver.find_element(By.NAME, "commit")
+        print(f"{datetime.now()} - ✅ 로그인 버튼(commit) 찾음")
+        commit_button.click()
+    except Exception as e:
+        print(f"{datetime.now()} - ❌ 로그인 버튼(commit) 찾지 못함: {e}")
+        driver.quit()
+        exit()
+
     time.sleep(3)
 
     current_url = driver.current_url
